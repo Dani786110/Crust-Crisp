@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5a900">
+<title>Crust & Crisp | Order Online</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#101010;color:#fff}
+header{padding:28px 18px;text-align:center;background:linear-gradient(135deg,#111,#2b1900);border-bottom:4px solid #f5a900}
+.logo{font-size:42px;font-weight:900;font-style:italic}.logo span{color:#f5a900}.tag{color:#ffd45a;font-weight:bold;margin-top:5px}
+.wrap{max-width:900px;margin:auto;padding:18px}.hero{background:#191919;border:1px solid #f5a900;border-radius:18px;padding:18px;text-align:center;margin-bottom:18px}
+.hero button,.checkout{background:#e21b14;color:#fff;border:0;border-radius:10px;padding:13px 18px;font-weight:800;cursor:pointer}
+h2{color:#ffc21a;text-align:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.card{background:#1b1b1b;border:1px solid #f5a900;border-radius:16px;padding:16px}.card h3{color:#ffbf19;margin:0 0 7px}.desc{color:#ccc;font-size:14px;min-height:38px}.price{font-weight:800;font-size:20px;margin:12px 0}
+.add{width:100%;background:#e21b14;color:white;border:0;border-radius:10px;padding:11px;font-weight:800;cursor:pointer}
+#cart{margin-top:24px;background:#191919;border:2px solid #f5a900;border-radius:16px;padding:18px}.item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #333}.qty button{padding:4px 9px;margin:0 2px;border:0;border-radius:6px}
+.total{font-size:22px;font-weight:900;color:#ffc21a;text-align:right;margin:15px 0}.form input,.form textarea,.form select{width:100%;margin:6px 0;padding:12px;border-radius:9px;border:1px solid #555;background:#111;color:#fff}.checkout{width:100%;font-size:16px}
+footer{text-align:center;padding:25px;color:#bbb}.wa{color:#45d36b;font-weight:bold}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Crust <span>&</span> Crisp</div>
+  <div class="tag">TASTY • FRESH • HOT</div>
+</header>
+<div class="wrap">
+  <section class="hero">
+    <h2>Order Online</h2>
+    <p>Fresh pizza, crispy fries & potato snacks in Shikarpur.</p>
+    <button onclick="document.getElementById('menu').scrollIntoView({behavior:'smooth'})">VIEW MENU</button>
+  </section>
+
+  <h2 id="menu">Our Menu</h2>
+  <div class="grid" id="products"></div>
+
+  <section id="cart">
+    <h2>Your Cart</h2>
+    <div id="cartItems"><p style="color:#aaa;text-align:center">Your cart is empty.</p></div>
+    <div class="total">Total: PKR <span id="total">0</span></div>
+    <div class="form">
+      <input id="name" placeholder="Customer name">
+      <input id="phone" placeholder="Phone number">
+      <textarea id="address" rows="3" placeholder="Delivery address"></textarea>
+      <select id="type"><option>Delivery</option><option>Pickup</option></select>
+      <button class="checkout" onclick="sendOrder()">ORDER ON WHATSAPP</button>
+    </div>
+  </section>
+</div>
+<footer>
+  Delivery / WhatsApp: <span class="wa">03192099092</span><br>
+  © Crust & Crisp
+</footer>
+
+<script>
+const products=[
+ {name:"Pizza",price:850,desc:"Delicious cheesy pizza with fresh toppings."},
+ {name:"Potato Twister",price:50,desc:"Crispy, spicy and crunchy potato twister."},
+ {name:"Potato Fries",price:50,desc:"Crispy golden fries. Price options: PKR 50–100."},
+ {name:"Pizza Bite",price:250,desc:"Bite-sized mini pizzas loaded with flavor."},
+ {name:"Loaded Fries",price:280,desc:"Crispy fries loaded with sauces and toppings."},
+ {name:"Pizza Fries",price:350,desc:"Fries with a pizza twist, cheese, sauces and toppings."}
+];
+let cart=[];
+const money=n=>n.toLocaleString("en-PK");
+function renderProducts(){
+ document.getElementById("products").innerHTML=products.map((p,i)=>`
+ <div class="card"><h3>${p.name}</h3><div class="desc">${p.desc}</div>
+ <div class="price">PKR ${p.price}${p.name==="Potato Fries"?"–100":""}</div>
+ <button class="add" onclick="add(${i})">ADD TO CART</button></div>`).join("");
+}
+function add(i){cart.push({...products[i],id:Date.now()+Math.random()});renderCart();document.getElementById("cart").scrollIntoView({behavior:"smooth"});}
+function renderCart(){
+ const el=document.getElementById("cartItems");
+ if(!cart.length){el.innerHTML='<p style="color:#aaa;text-align:center">Your cart is empty.</p>';document.getElementById("total").textContent="0";return;}
+ el.innerHTML=cart.map((x,i)=>`<div class="item"><span>${x.name} — PKR ${money(x.price)}</span><span class="qty"><button onclick="remove(${i})">−</button> ${1} <button onclick="addSame(${i})">+</button></span></div>`).join("");
+ document.getElementById("total").textContent=money(cart.reduce((s,x)=>s+x.price,0));
+}
+function addSame(i){cart.push({...cart[i],id:Date.now()+Math.random()});renderCart();}
+function remove(i){cart.splice(i,1);renderCart();}
+function sendOrder(){
+ if(!cart.length){alert("Please add an item first.");return;}
+ const name=document.getElementById("name").value.trim();
+ const phone=document.getElementById("phone").value.trim();
+ const address=document.getElementById("address").value.trim();
+ const type=document.getElementById("type").value;
+ if(!name||!phone||(type==="Delivery"&&!address)){alert("Please fill in your name, phone and delivery address.");return;}
+ const lines=cart.map(x=>`• ${x.name} — PKR ${x.price}`).join("\n");
+ const total=cart.reduce((s,x)=>s+x.price,0);
+ const msg=`*Crust & Crisp — New Order*%0A%0A${encodeURIComponent(lines)}%0A%0A*Total: PKR ${total}*%0AType: ${encodeURIComponent(type)}%0AName: ${encodeURIComponent(name)}%0APhone: ${encodeURIComponent(phone)}%0AAddress: ${encodeURIComponent(address||"Pickup")}`;
+ window.open(`https://wa.me/923192099092?text=${msg}`,"_blank");
+}
+renderProducts();renderCart();
+</script>
+</body>
+</html>
